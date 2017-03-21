@@ -21,4 +21,11 @@ $(document).ready(function() {
 // $('#itinerary').on('click', '.remove', function(event){
 //     ($(event.target).parent().children().remove());
 // })
+var dayNum = 2;
+$('#day-add').click(function() {
+    $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).insertBefore(this)
+    // parent().last().prev()
+    // .append(`<button class="btn btn-circle day-btn">${dayNum}</button>`)
+    dayNum++
+})
 
