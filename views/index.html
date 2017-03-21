@@ -16,27 +16,28 @@
           <div>
             <h4>Hotels</h4>
             <select data-type="hotels">
-				{% for hotel in hotels %}
+				<!--{% for hotel in hotels %}
 				<option>{{ hotel.name }}</option>
-				{% endfor %}
+				{% endfor %}-->
+        
 			</select>
         <button data-action="add" class="btn btn-primary btn-circle pull-right">+</button>
           </div>
           <div>
             <h4>Restaurants</h4>
             <select data-type="restaurants">
-				{% for r in restaurants %}
+				<!--{% for r in restaurants %}
 				<option>{{ r.name }}</option>
-				{% endfor %}
+				{% endfor %}-->
 			</select>
             <button data-action="add" class="btn btn-primary btn-circle pull-right">+</button>
           </div>
           <div>
             <h4>Activities</h4>
             <select data-type="activities">
-				{% for activity in activities %}
+				<!--{% for activity in activities %}
 				<option>{{ activity.name }}</option>
-				{% endfor %}
+				{% endfor %}-->
 			</select>
             <button data-action="add" class="btn btn-primary btn-circle pull-right">+</button>
           </div>
@@ -53,9 +54,9 @@
       <div class="panel panel-default">
         <div class="panel-heading">
           <div class="day-buttons">
-            <button class="btn btn-circle day-btn">1</button>
-            <button class="btn btn-circle day-btn current-day">2</button>
-            <button class="btn btn-circle day-btn">3</button>
+            <button class="btn btn-circle day-btn current-day">1</button>
+            <!--<button class="btn btn-circle day-btn current-day">2</button>-->
+            <!--<button class="btn btn-circle day-btn">3</button>-->
             <button class="btn btn-circle day-btn" id="day-add">+</button>
           </div>
         </div>
@@ -64,8 +65,8 @@
             <h4>My Hotel</h4>
             <ul class="list-group">
               <div class="itinerary-item">
-                <span class="title">Andaz Wall Street</span>
-                <button class="btn btn-xs btn-danger remove btn-circle">x</button>
+                <!--<span class="title">Andaz Wall Street</span>-->
+                <!--<button class="btn btn-xs btn-danger remove btn-circle">x</button>-->
               </div>
             </ul>
           </div>
@@ -73,8 +74,8 @@
             <h4>My Restaurants</h4>
             <ul class="list-group">
               <div class="itinerary-item">
-                <span class="title">Bouley</span>
-                <button class="btn btn-xs btn-danger remove btn-circle">x</button>
+                <!--<span class="title">Bouley</span>-->
+                <!--<button class="btn btn-xs btn-danger remove btn-circle">x</button>-->
               </div>
             </ul>
           </div>
@@ -82,8 +83,8 @@
             <h4>My Activities</h4>
             <ul class="list-group">
               <div class="itinerary-item">
-                <span class="title">Mahayana Buddhist Temple Association</span>
-                <button class="btn btn-xs btn-danger remove btn-circle">x</button>
+                <!--<span class="title">Mahayana Buddhist Temple Association</span>
+                <button class="btn btn-xs btn-danger remove btn-circle">x</button>-->
               </div>
             </ul>
           </div>
@@ -92,4 +93,13 @@
     </div>
   </div>
 </div>
+
+<script>
+  var hotels = {{ hotels | dump | safe }};
+  var restaurants = {{ restaurants | dump | safe }};
+  var activities = {{ activities | dump | safe }};
+  console.log(hotels);
+</script>
+
+
 {% endblock %}
