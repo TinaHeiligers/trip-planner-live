@@ -18,24 +18,7 @@ $(document).ready(function() {
 
 
 
-$('#add-hotel').click(function() {
-    var hotelName = $("*[data-type='hotels'] option:selected").text()
-    $('#hotel-list').append(`<div class="itinerary-item"><span class="title">${hotelName}</span>
-    <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-})
-
-$('#add-restaurant').click(function() {
-    var restaurantName = $("*[data-type='restaurants'] option:selected").text()
-    $('#restaurant-list').append(`<div class="itinerary-item"><span class="title">${restaurantName}</span>
-    <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-})
-
-$('#add-activity').click(function() {
-    var activityName = $("*[data-type='activities'] option:selected").text()
-    $('#activity-list').append(`<div class="itinerary-item"><span class="title">${activityName}</span>
-    <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-})
-
-
-
+// $('#itinerary').on('click', '.remove', function(event){
+//     ($(event.target).parent().children().remove());
+// })
 

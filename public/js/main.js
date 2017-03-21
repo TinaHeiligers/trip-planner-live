@@ -49,11 +49,11 @@ $(function initializeMap () {
     styles: styleArr
   });
 
-  // const iconURLs = {
-  //   hotel: '/images/lodging_0star.png',
-  //   restaurant: '/images/restaurant.png',
-  //   activity: '/images/star-3.png'
-  // };
+  const iconURLs = {
+    hotel: '/images/lodging_0star.png',
+    restaurant: '/images/restaurant.png',
+    activity: '/images/star-3.png'
+  };
 
   function drawMarker (type, coords) {
     const latLng = new google.maps.LatLng(coords[0], coords[1]);
@@ -63,8 +63,43 @@ $(function initializeMap () {
     marker.setMap(currentMap);
   }
 
-  // drawMarker('hotel', [40.705137, -74.007624]);
-  // drawMarker('restaurant', [40.705137, -74.013940]);
-  // drawMarker('activity', [40.716291, -73.995315]);
+    $('#add-hotel').click(function() {
+      var hotelName = $("*[data-type='hotels'] option:selected").text()
+      $('#hotel-list').append(`<div class="itinerary-item"><span class="title">${hotelName}</span>
+      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+      drawMarker('hotel', findCoordinates(hotels, hotelName));
+  })
+
+  $('#add-restaurant').click(function() {
+      var restaurantName = $("*[data-type='restaurants'] option:selected").text()
+      $('#restaurant-list').append(`<div class="itinerary-item"><span class="title">${restaurantName}</span>
+      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+      drawMarker('restaurant', findCoordinates(restaurants, restaurantName));
+  })
+
+  $('#add-activity').click(function() {
+      var activityName = $("*[data-type='activities'] option:selected").text()
+      $('#activity-list').append(`<div class="itinerary-item"><span class="title">${activityName}</span>
+      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+      drawMarker('activity', findCoordinates(activities, activityName));
+  })
+
+
+  function findCoordinates(table, itemName){
+      for(var i=0; i<table.length; i++){
+          if(table[i].name === itemName){
+              return table[i].place.location
+          }
+      }
+  }
+
+
+  $('#itinerary').on('click', '.remove', function(event){
+    ($(event.target).parent().children().remove());
+    // marker.setMap(null);
+})
 
 });
+
+
+
