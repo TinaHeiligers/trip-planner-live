@@ -1,3 +1,31 @@
+
+function populateFields() {
+    hotels.forEach(function(elem) {
+        $('*[data-type="hotels"]').append(`<option>${elem.name}</option>`)
+    })
+     restaurants.forEach(function(elem) {
+        $('*[data-type="restaurants"]').append(`<option>${elem.name}</option>`)
+    })
+    activities.forEach(function(elem) {
+        $('*[data-type="activities"]').append(`<option>${elem.name}</option>`)
+    })
+}
+
+$(document).ready(function() {
+    populateFields()
+})
+
+
+
+function Day() {
+    this.hotels = {};
+    this.restaurants = {};
+    this.activities = {}    
+  }
+
+
+var daysArr = [new Day()];
+
 $(function initializeMap () {
 
   const fullstackAcademy = new google.maps.LatLng(40.705086, -74.009151);
@@ -67,21 +95,34 @@ $(function initializeMap () {
       var hotelName = $("*[data-type='hotels'] option:selected").text()
       $('#hotel-list').append(`<div class="itinerary-item"><span class="title">${hotelName}</span>
       <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-      drawMarker('hotel', findCoordinates(hotels, hotelName));
+      var hotelCoord = findCoordinates(hotels, hotelName);
+      drawMarker('hotel', hotelCoord);
+      var activeDay = $('.current-day').text();
+      daysArr[+activeDay-1].hotels[hotelName] = hotelCoord;
+      // console.log(daysArr);
   })
 
   $('#add-restaurant').click(function() {
       var restaurantName = $("*[data-type='restaurants'] option:selected").text()
       $('#restaurant-list').append(`<div class="itinerary-item"><span class="title">${restaurantName}</span>
       <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-      drawMarker('restaurant', findCoordinates(restaurants, restaurantName));
+      var restCoord = findCoordinates(restaurants, restaurantName);
+      drawMarker('restaurant', restCoord);
+      var activeDay = $('.current-day').text();
+      daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
+            // console.log(daysArr);
   })
 
   $('#add-activity').click(function() {
       var activityName = $("*[data-type='activities'] option:selected").text()
       $('#activity-list').append(`<div class="itinerary-item"><span class="title">${activityName}</span>
       <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-      drawMarker('activity', findCoordinates(activities, activityName));
+      
+      var activityCoord = findCoordinates(activities, activityName);
+      drawMarker('activity', activityCoord);
+      var activeDay = $('.current-day').text();
+      daysArr[+activeDay-1].activities[activityName] = activityCoord;
+            // console.log(daysArr);
   })
 
 
@@ -100,6 +141,25 @@ $(function initializeMap () {
 })
 
 });
+
+
+
+// $('#itinerary').on('click', '.remove', function(event){
+//     ($(event.target).parent().children().remove());
+// })
+var dayNum = 2;
+$('#day-add').click(function() {
+    $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).appendTo('.day-buttons')
+
+    daysArr.push(new Day());
+    dayNum++
+})
+
+$('.day-buttons').click(function(event){
+  $(this).children().removeClass('current-day');
+  $(event.target).addClass('current-day');
+  
+})
 
 
 
