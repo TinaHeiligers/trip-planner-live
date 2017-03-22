@@ -89,40 +89,39 @@ $(function initializeMap () {
       position: latLng
     });
     marker.setMap(currentMap);
+    console.log(marker)
+  }
+
+  function setItineraryItem(type, name) {
+    $(`#${type}-list`).append(`<div class="itinerary-item"><span class="title">${name}</span>
+      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
   }
 
     $('#add-hotel').click(function() {
       var hotelName = $("*[data-type='hotels'] option:selected").text()
-      $('#hotel-list').append(`<div class="itinerary-item"><span class="title">${hotelName}</span>
-      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+      setItineraryItem('hotel', hotelName)
       var hotelCoord = findCoordinates(hotels, hotelName);
       drawMarker('hotel', hotelCoord);
       var activeDay = $('.current-day').text();
       daysArr[+activeDay-1].hotels[hotelName] = hotelCoord;
-      // console.log(daysArr);
   })
 
   $('#add-restaurant').click(function() {
       var restaurantName = $("*[data-type='restaurants'] option:selected").text()
-      $('#restaurant-list').append(`<div class="itinerary-item"><span class="title">${restaurantName}</span>
-      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+     setItineraryItem('restaurant', restaurantName)
       var restCoord = findCoordinates(restaurants, restaurantName);
       drawMarker('restaurant', restCoord);
       var activeDay = $('.current-day').text();
       daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
-            // console.log(daysArr);
   })
 
   $('#add-activity').click(function() {
       var activityName = $("*[data-type='activities'] option:selected").text()
-      $('#activity-list').append(`<div class="itinerary-item"><span class="title">${activityName}</span>
-      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-      
+      setItineraryItem('activity', activityName)
       var activityCoord = findCoordinates(activities, activityName);
       drawMarker('activity', activityCoord);
       var activeDay = $('.current-day').text();
       daysArr[+activeDay-1].activities[activityName] = activityCoord;
-            // console.log(daysArr);
   })
 
 
@@ -136,21 +135,22 @@ $(function initializeMap () {
 
 
   $('#itinerary').on('click', '.remove', function(event){
-    ($(event.target).parent().children().remove());
-    // marker.setMap(null);
+    //CODE THAT'S TRYING TO DELETE THE ITEM FROM OUR DAYSARR
+    //  var activeDay = $('.current-day').text();
+    //  var list;
+    //  if ($(event.target).parent().parent().attr('id').includes('hotel')) list = 'hotels'
+    //  else if($(event.target).parent().parent().attr('id').includes('restaurant')) list = 'restaurants'
+    //  else if ($(event.target).parent().parent().attr('id').includes('activity')) list = 'activities'
+    //   var listItem = $(event.target).parent().find('span').text()
+    //   var index = daysArr[+activeDay-1]
+    //   console.log(index[list][listItem])
+    //   delete index[list][listItem]
+      ($(event.target).parent().children().remove());
 })
 
-});
-
-
-
-// $('#itinerary').on('click', '.remove', function(event){
-//     ($(event.target).parent().children().remove());
-// })
 var dayNum = 2;
 $('#day-add').click(function() {
     $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).appendTo('.day-buttons')
-
     daysArr.push(new Day());
     dayNum++
 })
@@ -158,8 +158,26 @@ $('#day-add').click(function() {
 $('.day-buttons').click(function(event){
   $(this).children().removeClass('current-day');
   $(event.target).addClass('current-day');
+  $('#hotel-list,#restaurant-list,#activity-list').children().remove()
+  var activeDay = $('.current-day').text();
+  var thatDaysHotels = Object.keys(daysArr[+activeDay-1].hotels)
+  thatDaysHotels.forEach(function(elem) {
+    setItineraryItem('hotel', elem)
+  })
+  var thatDaysRestaurants = Object.keys(daysArr[+activeDay-1].restaurants)
+  thatDaysRestaurants.forEach(function(elem) {
+    setItineraryItem('restaurant', elem)
+  })
+  var thatDaysActivities = Object.keys(daysArr[+activeDay-1].activities)
+  thatDaysActivities.forEach(function(elem) {
+    setItineraryItem('activity', elem)
+  })
   
 })
+
+});
+
+
 
 
 
