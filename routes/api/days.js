@@ -43,7 +43,7 @@ router.post('/addHotel', (req, res, next) => {
 
 router.post('/addRestaurant', (req, res, next) => {
     var day = Day.findOne({where:{number: +req.body.dayNum}})
-    var restaurant = Restaurant.findById(req.body.restaurantId)
+    var restaurant = Restaurant.findOne({where:{name: req.body.restaurantName}})
     Promise.all([day, restaurant])
     .spread(function(day, restaurant) {
         day.addRestaurant(restaurant)
@@ -52,7 +52,7 @@ router.post('/addRestaurant', (req, res, next) => {
 
 router.post('/addActivity', (req, res, next) => {
     var day = Day.findOne({where:{number: +req.body.dayNum}})
-    var activity = Activity.findById(req.body.activityId)
+    var activity = Activity.findOne({where:{name: req.body.activityName}})
     Promise.all([day, activity])
     .spread(function(day, activity) {
         day.addActivity(activity)
@@ -70,11 +70,11 @@ router.get('/day/:number', function(req, res, next) {
     var num = +req.params.number
     Day.findOne({where: {number: num}})
     .then(function(day) {
-        return Promise.all([
-            day.getHotel(),
-            day.getRestaurants(),
-            day.getActivities()
-        ])
+        return Promise.props({
+            hotel: day.getHotel(),
+            restaurant: day.getRestaurants(),
+            activity: day.getActivities()
+        })
     }) 
     .then(function(data) { 
         res.json(data)

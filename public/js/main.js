@@ -26,24 +26,27 @@ $(document).ready(function() {
 
 // var daysArr = [new Day()];
 
-function setItineraryItem(type, name, dayNum) {
+function setItineraryItem(type, name) {
     $(`#${type}-list`).append(`<div class="itinerary-item"><span class="title">${name}</span>
-      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-      switch (type) {
-        case 'hotel': $.post('/api/addHotel', {dayNum: dayNum, hotelName: name})
-          .then(function(data) {
-              console.log('updated with ' + data)
-          }).catch() 
-            break;
+      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)      
+}
 
+function addEventToDay(type, name, dayNum) {
+  switch (type) {
+        case 'hotel': $.post('/api/addHotel', {dayNum: dayNum, hotelName: name}).catch() 
+            break;
+        case 'restaurant': $.post('/api/addRestaurant', {dayNum: dayNum, restaurantName: name}).catch()
+            break;
+        case 'activity': $.post('/api/addActivity', {dayNum: dayNum, activityName: name}).catch()
+            break;
         }
 }
 
     $('#add-hotel').click(function() {
       var hotelName = $("*[data-type='hotels'] option:selected").text()
       var activeDay = $('.current-day').text();
-      setItineraryItem('hotel', hotelName, activeDay)
-
+      setItineraryItem('hotel', hotelName)
+      addEventToDay('hotel', hotelName, activeDay)
 
       var hotelCoord = findCoordinates(hotels, hotelName);
       drawMarker('hotel', hotelCoord);
@@ -53,20 +56,26 @@ function setItineraryItem(type, name, dayNum) {
 
   $('#add-restaurant').click(function() {
       var restaurantName = $("*[data-type='restaurants'] option:selected").text()
+      var activeDay = $('.current-day').text();
      setItineraryItem('restaurant', restaurantName)
+      addEventToDay('restaurant', restaurantName, activeDay)
+      
       var restCoord = findCoordinates(restaurants, restaurantName);
       drawMarker('restaurant', restCoord);
-      var activeDay = $('.current-day').text();
-      daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
+      
+      //daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
   })
 
   $('#add-activity').click(function() {
       var activityName = $("*[data-type='activities'] option:selected").text()
+      var activeDay = $('.current-day').text();
       setItineraryItem('activity', activityName)
+      addEventToDay('activity', activityName, activeDay)
+      
       var activityCoord = findCoordinates(activities, activityName);
       drawMarker('activity', activityCoord);
-      var activeDay = $('.current-day').text();
-      daysArr[+activeDay-1].activities[activityName] = activityCoord;
+      
+      //daysArr[+activeDay-1].activities[activityName] = activityCoord;
   })
 
 
@@ -93,17 +102,28 @@ function setItineraryItem(type, name, dayNum) {
       ($(event.target).parent().children().remove());
 })
 
-var dayNum = 2;
+var dayNum = 1;
 $('#day-add').click(function() {
+    dayNum++
     $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).appendTo('.day-buttons')
     $.post('/api/day', {number: dayNum}).catch()
     //daysArr.push(new Day());
-    dayNum++
+    
 })
 
 $('.day-buttons').click(function(event){
+  var currentDay = $(event.target)
   $(this).children().removeClass('current-day');
-  $(event.target).addClass('current-day');
+  currentDay.addClass('current-day');
+
+
+  $.get(`/api/day/${dayNum}`)
+    .then(function(obj) {
+      for (var key in obj) {
+        setItineraryItem(key, obj[key].name)
+      } 
+    }).catch(console.error)
+
   $('#hotel-list,#restaurant-list,#activity-list').children().remove()
   var activeDay = $('.current-day').text();
   var thatDaysHotels = Object.keys(daysArr[+activeDay-1].hotels)
