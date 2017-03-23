@@ -1,30 +1,129 @@
-
-function populateFields() {
-    hotels.forEach(function(elem) {
-        $('*[data-type="hotels"]').append(`<option>${elem.name}</option>`)
-    })
-     restaurants.forEach(function(elem) {
-        $('*[data-type="restaurants"]').append(`<option>${elem.name}</option>`)
-    })
-    activities.forEach(function(elem) {
-        $('*[data-type="activities"]').append(`<option>${elem.name}</option>`)
-    })
-}
-
 $(document).ready(function() {
-    populateFields()
+    const db = $.get('/api').then(function(db) {
+      db.hotels.forEach(function(elem) {
+          $('*[data-type="hotels"]').append(`<option>${elem.name}</option>`)
+      })
+      db.restaurants.forEach(function(elem) {
+          $('*[data-type="restaurants"]').append(`<option>${elem.name}</option>`)
+      })
+      db.activities.forEach(function(elem) {
+          $('*[data-type="activities"]').append(`<option>${elem.name}</option>`)
+      })
+    })
+    $.post('/api/day', {number: 1}).catch()
+    
+    console.log(db)
 })
 
 
 
-function Day() {
-    this.hotels = {};
-    this.restaurants = {};
-    this.activities = {}    
+// function Day() {
+//     this.hotels = {};
+//     this.restaurants = {};
+//     this.activities = {}    
+//   }
+
+
+// var daysArr = [new Day()];
+
+function setItineraryItem(type, name, dayNum) {
+    $(`#${type}-list`).append(`<div class="itinerary-item"><span class="title">${name}</span>
+      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+      switch (type) {
+        case 'hotel': $.post('/api/addHotel', {dayNum: dayNum, hotelName: name})
+          .then(function(data) {
+              console.log('updated with ' + data)
+          }).catch() 
+            break;
+
+        }
+}
+
+    $('#add-hotel').click(function() {
+      var hotelName = $("*[data-type='hotels'] option:selected").text()
+      var activeDay = $('.current-day').text();
+      setItineraryItem('hotel', hotelName, activeDay)
+
+
+      var hotelCoord = findCoordinates(hotels, hotelName);
+      drawMarker('hotel', hotelCoord);
+      
+      // daysArr[+activeDay-1].hotels[hotelName] = hotelCoord;
+  })
+
+  $('#add-restaurant').click(function() {
+      var restaurantName = $("*[data-type='restaurants'] option:selected").text()
+     setItineraryItem('restaurant', restaurantName)
+      var restCoord = findCoordinates(restaurants, restaurantName);
+      drawMarker('restaurant', restCoord);
+      var activeDay = $('.current-day').text();
+      daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
+  })
+
+  $('#add-activity').click(function() {
+      var activityName = $("*[data-type='activities'] option:selected").text()
+      setItineraryItem('activity', activityName)
+      var activityCoord = findCoordinates(activities, activityName);
+      drawMarker('activity', activityCoord);
+      var activeDay = $('.current-day').text();
+      daysArr[+activeDay-1].activities[activityName] = activityCoord;
+  })
+
+
+  function findCoordinates(table, itemName){
+      for(var i=0; i<table.length; i++){
+          if(table[i].name === itemName){
+              return table[i].place.location
+          }
+      }
   }
 
 
-var daysArr = [new Day()];
+  $('#itinerary').on('click', '.remove', function(event){
+    //CODE THAT'S TRYING TO DELETE THE ITEM FROM OUR DAYSARR
+    //  var activeDay = $('.current-day').text();
+    //  var list;
+    //  if ($(event.target).parent().parent().attr('id').includes('hotel')) list = 'hotels'
+    //  else if($(event.target).parent().parent().attr('id').includes('restaurant')) list = 'restaurants'
+    //  else if ($(event.target).parent().parent().attr('id').includes('activity')) list = 'activities'
+    //   var listItem = $(event.target).parent().find('span').text()
+    //   var index = daysArr[+activeDay-1]
+    //   console.log(index[list][listItem])
+    //   delete index[list][listItem]
+      ($(event.target).parent().children().remove());
+})
+
+var dayNum = 2;
+$('#day-add').click(function() {
+    $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).appendTo('.day-buttons')
+    $.post('/api/day', {number: dayNum}).catch()
+    //daysArr.push(new Day());
+    dayNum++
+})
+
+$('.day-buttons').click(function(event){
+  $(this).children().removeClass('current-day');
+  $(event.target).addClass('current-day');
+  $('#hotel-list,#restaurant-list,#activity-list').children().remove()
+  var activeDay = $('.current-day').text();
+  var thatDaysHotels = Object.keys(daysArr[+activeDay-1].hotels)
+  thatDaysHotels.forEach(function(elem) {
+    setItineraryItem('hotel', elem)
+  })
+  var thatDaysRestaurants = Object.keys(daysArr[+activeDay-1].restaurants)
+  thatDaysRestaurants.forEach(function(elem) {
+    setItineraryItem('restaurant', elem)
+  })
+  var thatDaysActivities = Object.keys(daysArr[+activeDay-1].activities)
+  thatDaysActivities.forEach(function(elem) {
+    setItineraryItem('activity', elem)
+  })
+  
+})
+
+$('#day-delete').click(function() {
+  $('.current-day').remove()
+})
 
 $(function initializeMap () {
 
@@ -92,88 +191,92 @@ $(function initializeMap () {
     console.log(marker)
   }
 
-  function setItineraryItem(type, name) {
-    $(`#${type}-list`).append(`<div class="itinerary-item"><span class="title">${name}</span>
-      <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
-  }
+//   function setItineraryItem(type, name) {
+//     $(`#${type}-list`).append(`<div class="itinerary-item"><span class="title">${name}</span>
+//       <button class="btn btn-xs btn-danger remove btn-circle">x</button></div>`)
+//   }
 
-    $('#add-hotel').click(function() {
-      var hotelName = $("*[data-type='hotels'] option:selected").text()
-      setItineraryItem('hotel', hotelName)
-      var hotelCoord = findCoordinates(hotels, hotelName);
-      drawMarker('hotel', hotelCoord);
-      var activeDay = $('.current-day').text();
-      daysArr[+activeDay-1].hotels[hotelName] = hotelCoord;
-  })
+//     $('#add-hotel').click(function() {
+//       var hotelName = $("*[data-type='hotels'] option:selected").text()
+//       setItineraryItem('hotel', hotelName)
+//       var hotelCoord = findCoordinates(hotels, hotelName);
+//       drawMarker('hotel', hotelCoord);
+//       var activeDay = $('.current-day').text();
+//       daysArr[+activeDay-1].hotels[hotelName] = hotelCoord;
+//   })
 
-  $('#add-restaurant').click(function() {
-      var restaurantName = $("*[data-type='restaurants'] option:selected").text()
-     setItineraryItem('restaurant', restaurantName)
-      var restCoord = findCoordinates(restaurants, restaurantName);
-      drawMarker('restaurant', restCoord);
-      var activeDay = $('.current-day').text();
-      daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
-  })
+//   $('#add-restaurant').click(function() {
+//       var restaurantName = $("*[data-type='restaurants'] option:selected").text()
+//      setItineraryItem('restaurant', restaurantName)
+//       var restCoord = findCoordinates(restaurants, restaurantName);
+//       drawMarker('restaurant', restCoord);
+//       var activeDay = $('.current-day').text();
+//       daysArr[+activeDay-1].restaurants[restaurantName] = restCoord;
+//   })
 
-  $('#add-activity').click(function() {
-      var activityName = $("*[data-type='activities'] option:selected").text()
-      setItineraryItem('activity', activityName)
-      var activityCoord = findCoordinates(activities, activityName);
-      drawMarker('activity', activityCoord);
-      var activeDay = $('.current-day').text();
-      daysArr[+activeDay-1].activities[activityName] = activityCoord;
-  })
-
-
-  function findCoordinates(table, itemName){
-      for(var i=0; i<table.length; i++){
-          if(table[i].name === itemName){
-              return table[i].place.location
-          }
-      }
-  }
+//   $('#add-activity').click(function() {
+//       var activityName = $("*[data-type='activities'] option:selected").text()
+//       setItineraryItem('activity', activityName)
+//       var activityCoord = findCoordinates(activities, activityName);
+//       drawMarker('activity', activityCoord);
+//       var activeDay = $('.current-day').text();
+//       daysArr[+activeDay-1].activities[activityName] = activityCoord;
+//   })
 
 
-  $('#itinerary').on('click', '.remove', function(event){
-    //CODE THAT'S TRYING TO DELETE THE ITEM FROM OUR DAYSARR
-    //  var activeDay = $('.current-day').text();
-    //  var list;
-    //  if ($(event.target).parent().parent().attr('id').includes('hotel')) list = 'hotels'
-    //  else if($(event.target).parent().parent().attr('id').includes('restaurant')) list = 'restaurants'
-    //  else if ($(event.target).parent().parent().attr('id').includes('activity')) list = 'activities'
-    //   var listItem = $(event.target).parent().find('span').text()
-    //   var index = daysArr[+activeDay-1]
-    //   console.log(index[list][listItem])
-    //   delete index[list][listItem]
-      ($(event.target).parent().children().remove());
-})
+//   function findCoordinates(table, itemName){
+//       for(var i=0; i<table.length; i++){
+//           if(table[i].name === itemName){
+//               return table[i].place.location
+//           }
+//       }
+//   }
 
-var dayNum = 2;
-$('#day-add').click(function() {
-    $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).appendTo('.day-buttons')
-    daysArr.push(new Day());
-    dayNum++
-})
 
-$('.day-buttons').click(function(event){
-  $(this).children().removeClass('current-day');
-  $(event.target).addClass('current-day');
-  $('#hotel-list,#restaurant-list,#activity-list').children().remove()
-  var activeDay = $('.current-day').text();
-  var thatDaysHotels = Object.keys(daysArr[+activeDay-1].hotels)
-  thatDaysHotels.forEach(function(elem) {
-    setItineraryItem('hotel', elem)
-  })
-  var thatDaysRestaurants = Object.keys(daysArr[+activeDay-1].restaurants)
-  thatDaysRestaurants.forEach(function(elem) {
-    setItineraryItem('restaurant', elem)
-  })
-  var thatDaysActivities = Object.keys(daysArr[+activeDay-1].activities)
-  thatDaysActivities.forEach(function(elem) {
-    setItineraryItem('activity', elem)
-  })
+//   $('#itinerary').on('click', '.remove', function(event){
+//     //CODE THAT'S TRYING TO DELETE THE ITEM FROM OUR DAYSARR
+//     //  var activeDay = $('.current-day').text();
+//     //  var list;
+//     //  if ($(event.target).parent().parent().attr('id').includes('hotel')) list = 'hotels'
+//     //  else if($(event.target).parent().parent().attr('id').includes('restaurant')) list = 'restaurants'
+//     //  else if ($(event.target).parent().parent().attr('id').includes('activity')) list = 'activities'
+//     //   var listItem = $(event.target).parent().find('span').text()
+//     //   var index = daysArr[+activeDay-1]
+//     //   console.log(index[list][listItem])
+//     //   delete index[list][listItem]
+//       ($(event.target).parent().children().remove());
+// })
+
+// var dayNum = 2;
+// $('#day-add').click(function() {
+//     $(`<button class="btn btn-circle day-btn">${dayNum}</button>`).appendTo('.day-buttons')
+//     daysArr.push(new Day());
+//     dayNum++
+// })
+
+// $('.day-buttons').click(function(event){
+//   $(this).children().removeClass('current-day');
+//   $(event.target).addClass('current-day');
+//   $('#hotel-list,#restaurant-list,#activity-list').children().remove()
+//   var activeDay = $('.current-day').text();
+//   var thatDaysHotels = Object.keys(daysArr[+activeDay-1].hotels)
+//   thatDaysHotels.forEach(function(elem) {
+//     setItineraryItem('hotel', elem)
+//   })
+//   var thatDaysRestaurants = Object.keys(daysArr[+activeDay-1].restaurants)
+//   thatDaysRestaurants.forEach(function(elem) {
+//     setItineraryItem('restaurant', elem)
+//   })
+//   var thatDaysActivities = Object.keys(daysArr[+activeDay-1].activities)
+//   thatDaysActivities.forEach(function(elem) {
+//     setItineraryItem('activity', elem)
+//   })
   
-})
+// })
+
+// $('#day-delete').click(function() {
+//   $('.current-day').remove()
+// })
 
 });
 
